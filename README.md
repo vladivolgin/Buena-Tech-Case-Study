@@ -208,6 +208,86 @@ backend/
 │     └─ health.module.ts
 └─ docker-compose.yml
 ```
+
+## 🖥 Frontend Overview
+
+The frontend is a **Next.js (App Router)** application responsible for
+displaying the Property Dashboard and handling the property creation wizard.
+
+Its main responsibilities are:
+- displaying properties and their current state
+- guiding the user through a multi-step creation flow
+- sending validated data to the backend
+- handling navigation and redirects
+
+The frontend does not contain business logic or hidden state —
+the backend is the single source of truth.
+
+---
+
+## 📁 Frontend Structure
+```text
+front/
+├─ app/
+│  ├─ dashboard/
+│  │  ├─ page.tsx
+│  │  └─ layout.tsx
+│  ├─ properties/
+│  │  ├─ create/
+│  │  │  └─ page.tsx
+│  │  └─ id/
+│  │     └─ wizard/
+│  │        └─ page.tsx
+│  └─ layout.tsx
+├─ components/
+│  ├─ property/
+│  │  ├─ PropertyList.tsx
+│  │  ├─ PropertyListItem.tsx
+│  │  ├─ PropertyDetailsDialog.tsx
+│  │  └─ CreatePropertyButton.tsx
+│  ├─ wizard/
+│  │  ├─ WizardLayout.tsx
+│  │  ├─ WizardForm.tsx
+│  │  └─ steps/
+│  │     ├─ GeneralInfoStep.tsx
+│  │     ├─ BuildingsStep.tsx
+│  │     └─ UnitsStep.tsx
+│  └─ ui/
+│     ├─ provider.tsx
+│     ├─ toaster.tsx
+│     └─ tooltip.tsx
+├─ dto/
+├─ models/
+├─ services/
+└─ public/
+```
+
+---
+
+## ✅ What the Frontend Does
+
+- Renders a **property dashboard** with card-based layout
+- Displays property status (`draft` / `active`) and management type (`WEG` / `MV`)
+- Opens a **property preview dialog** on card click
+- Provides entry points to continue or complete a property wizard
+- Implements a **multi-step property creation wizard**:
+  1. General Info
+  2. Buildings
+  3. Units
+- Validates and submits user input to the backend
+- Redirects the user after successful operations
+
+---
+
+## ⚠️ Key Notes
+
+- The frontend disables native HTML validation in wizard forms
+- All submit logic runs in client components
+- Redirects occur only after successful API calls
+- No business logic or aggregation is handled on the frontend
+
+The frontend is intentionally kept **simple, predictable, and stable**.
+
 ### Modules Overview
 
 - **PropertiesModule**
