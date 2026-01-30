@@ -94,3 +94,205 @@ buildings
 - created_at
 - updated_at
 ```
+Units Table
+```sql
+units
+- id (PK)
+- building_id (FK → buildings.id)
+- number
+- type (enum: Apartment | Office | Garden | Parking)
+- floor
+- entrance
+- size_sqm
+- co_ownership_share
+- construction_year
+- rooms
+- created_at
+- updated_at
+```
+
+## 🔑 Key Characteristics
+
+This project is built around a set of deliberate architectural and UX decisions aimed at creating a stable and predictable system.
+
+### Draft‑First Workflow
+- Properties can exist in a `draft` state
+- Drafts allow users to incrementally fill complex data
+- No implicit activation — state transitions are explicit
+
+### Single Source of Truth
+- Core business fields (`name`, `managementType`, `manager`, `accountant`)
+  are stored and read from the backend
+- The UI never relies on hardcoded fallbacks once data is provided
+- Prevents data divergence between frontend state and database
+
+### Stable Form Handling
+- Native HTML validation is fully disabled in wizard forms
+- All validation is handled explicitly in JavaScript
+- Eliminates silent submit failures in multi-step workflows
+
+### Predictable Navigation
+- Submit logic exists only in client components
+- Redirects happen strictly after successful `await` of API calls
+- No hidden side effects (`useEffect`, server actions, etc.)
+
+### Intentional Scope Control
+- No delete flow for properties (removed due to instability at this stage)
+- No backend aggregation logic yet
+- Focus is on correctness, not feature quantity
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- **Next.js (App Router)** — routing, layouts, and data fetching
+- **React** — component-based UI
+- **TypeScript** — strict typing across the app
+- **Chakra UI v3** — accessible, composable UI components
+
+### Backend
+- **Node.js** — runtime
+- **NestJS** — modular backend framework
+- **PostgreSQL** — relational database
+- **Prisma ORM** — type-safe database access
+- **bcrypt** — password hashing
+
+### Infrastructure
+- **Docker / Docker Compose** — local database setup
+- **Prisma Migrations** — schema versioning and consistency
+
+---
+
+## 🔧 Backend Architecture
+
+The backend follows a **modular NestJS architecture** with a strong emphasis on
+type safety and separation of concerns.
+
+### Core Principles
+- Each domain is isolated in its own module
+- Prisma is injected via a dedicated `PrismaModule`
+- DTOs are strictly separated from entities
+- Enums are used consistently for domain concepts
+### Backend Structure
+```text
+backend/
+├─ prisma/
+│  ├─ schema.prisma
+│  ├─ migrations/
+│  └─ generated/
+├─ src/
+│  ├─ app.module.ts
+│  ├─ main.ts
+│  ├─ prisma/
+│  │  ├─ prisma.module.ts
+│  │  └─ prisma.service.ts
+│  ├─ database/
+│  │  ├─ database.module.ts
+│  │  └─ seed.sql
+│  ├─ properties/
+│  │  ├─ dto/
+│  │  ├─ properties.controller.ts
+│  │  ├─ properties.service.ts
+│  │  └─ properties.module.ts
+│  ├─ buildings/
+│  │  ├─ buildings.controller.ts
+│  │  └─ buildings.module.ts
+│  ├─ users/
+│  │  ├─ dto/
+│  │  ├─ users.controller.ts
+│  │  ├─ users.service.ts
+│  │  └─ users.module.ts
+│  └─ health/
+│     ├─ health.controller.ts
+│     └─ health.module.ts
+└─ docker-compose.yml
+```
+### Modules Overview
+
+- **PropertiesModule**
+  - Draft creation and update logic
+  - Core business entity
+- **BuildingsModule**
+  - Buildings belonging to a property
+  - Ordered within a property
+- **UnitsModule**
+  - Units belonging to buildings
+  - Physical and legal attributes
+- **UsersModule**
+  - Basic user management
+  - Password hashing
+- **PrismaModule**
+  - Centralized Prisma client
+- **DatabaseModule**
+  - Database initialization and seeding
+- **HealthModule**
+  - Health check endpoint
+
+### API Design
+
+The backend exposes a simple REST API:
+```text
+GET    /properties
+POST   /properties
+GET    /properties/:id
+PATCH  /properties/:id
+```
+
+Currently the backend exposes endpoints for listing and creating properties, which is enough to power the Property Dashboard and start the creation wizard.
+The remaining endpoints for buildings and units follow the same REST structure and can be added incrementally
+
+
+## ▶️ Local Development Setup
+
+This section describes how to run the project locally for development.
+
+---
+
+### ✅ Prerequisites
+
+Make sure the following tools are installed on your machine:
+
+- **Node.js** `>= 18`
+- **npm** or **yarn**
+- **Docker**
+- **Docker Compose**
+
+---
+
+### 🗄 1. Start PostgreSQL (Docker)
+
+The project uses a local PostgreSQL database running in Docker.
+
+From the root of the repository:
+```bash
+docker-compose up -d
+```
+## Backend Setup (NestJS + Prisma)
+
+```bash
+cd backend
+Install dependencies:
+```
+```bash
+```
+npm install
+Generate Prisma Client:
+
+```bash
+npx prisma generate
+```
+Run database migrations:
+```bash
+npx prisma migrate dev
+```
+(Optional) Seed the database with demo data:
+```bash
+psql < ./src/database/seed.sql
+```
+Start the backend in development mode:
+```bash
+npm run start:dev
+```
+Backend will be available at:
+http://localhost:3000
