@@ -1,6 +1,8 @@
 
 <img width="1415" height="531" alt="Снимок экрана 2026-01-30 в 18 17 04" src="https://github.com/user-attachments/assets/1bc1d927-0c8a-40f0-85f3-e2607986f43c" />
 
+https://youtu.be/BAGUJ-5jgcA
+
 # Property Management Dashboard
 
 This repository contains a full-stack property management prototype built with **Next.js (App Router)** and **NestJS**, using **PostgreSQL** as the database and **Prisma ORM** for data access.
