@@ -272,13 +272,12 @@ docker-compose up -d
 
 ```bash
 cd backend
+```
 Install dependencies:
-```
 ```bash
-```
 npm install
+```
 Generate Prisma Client:
-
 ```bash
 npx prisma generate
 ```
@@ -296,3 +295,27 @@ npm run start:dev
 ```
 Backend will be available at:
 http://localhost:3000
+
+## Frontend Setup (Next.js)
+Open a new terminal and navigate to the frontend folder:
+```bash
+cd front
+```
+Install dependencies:
+```bash
+npm install
+```
+Start the frontend development server:
+```bash
+npm run dev
+```
+Frontend will be available at:
+http://localhost:3001
+
+🔍 Health Check
+You can verify that the backend is running by opening:
+``bash
+GET http://localhost:3000/health
+``
+A successful response confirms that the API and database connection
+are working correctly.
