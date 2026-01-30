@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(MANAGER)
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+
+  managedProperties   Property[] @relation("PropertyManager")
+  accountedProperties Property[] @relation("PropertyAccountant")
+
+  @@map("users")
+}
+
+
+model Property {
+  id                        String            @id @default(uuid())
+  uniqueNumber              String            @unique @map("unique_number") // Автогенерируемый номер
+  name                      String
+  managementType            ManagementType    @map("management_type") // WEG или MV
+  purpose                   String? // Назначение объекта
+  managerId                 String?           @map("manager_id")
+  accountantId              String?           @map("accountant_id")
+  teilungserklarungFilePath String?           @map("teilungserklarung_file_path") // Путь к документу
+  createdAt                 DateTime          @default(now()) @map("created_at")
+  updatedAt                 DateTime          @updatedAt @map("updated_at")
+
+  // Отношения
+  manager    User?       @relation("PropertyManager", fields: [managerId], references: [id])
+  accountant User?       @relation("PropertyAccountant", fields: [accountantId], references: [id])
+  buildings  Building[]
+
+  @@map("properties")
+}
+
+
+model Building {
+  id               String   @id @default(uuid())
+  propertyId       String   @map("property_id")
+  street           String
+  houseNumber      String   @map("house_number")
+  postalCode       String?  @map("postal_code")
+  city             String?
+  constructionYear Int?     @map("construction_year")
+  orderIndex       Int      @default(0) @map("order_index") // Для сортировки зданий
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Отношения
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  units    Unit[]
+
+  @@map("buildings")
+}
+
+model Unit {
+  id               Int       @id @default(autoincrement())
+  buildingId       String    @map("building_id")
+  number           String // Номер единицы
+  type             UnitType? // Тип единицы
+  floor            Int? // Этаж
+  entrance         String? // Подъезд
+  sizeSqm          Decimal?  @map("size_sqm") @db.Decimal(8, 2) // Площадь в кв.м
+  coOwnershipShare Decimal   @map("co_ownership_share") @db.Decimal(8, 4) // Доля в совместной собственности
+  constructionYear Int?      @map("construction_year")
+  rooms            Int? // Количество комнат
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // Отношения
+  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+
+  // Ограничения
+  @@unique([buildingId, number], name: "unique_unit_per_building")
+  @@map("units")
+}
+
+// Перечисления
+enum UserRole {
+  ADMIN
+  MANAGER
+  ACCOUNTANT
+}
+
+enum ManagementType {
+  WEG // Wohnungseigentümergemeinschaft
+  MV  // Mietverwaltung
+}
+
+enum UnitType {
+  APARTMENT // Квартира
+  OFFICE    // Офис
+  GARDEN    // Сад
+  PARKING   // Парковка
+}
+
