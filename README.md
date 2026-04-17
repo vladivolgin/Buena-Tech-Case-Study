@@ -284,9 +284,14 @@ backend/
 │  │  ├─ properties.controller.ts
 │  │  ├─ properties.service.ts
 │  │  └─ properties.module.ts
-│  ├─ buildings/
+│  │  ├─ buildings/
 │  │  ├─ buildings.controller.ts
 │  │  └─ buildings.module.ts
+│  ├─ owners/
+│  │  ├─ dto/
+│  │  ├─ owners.controller.ts
+│  │  ├─ owners.service.ts
+│  │  └─ owners.module.ts
 │  ├─ users/
 │  │  ├─ dto/
 │  │  ├─ users.controller.ts
@@ -380,14 +385,15 @@ The frontend is intentionally kept **simple, predictable, and stable**.
 ### Modules Overview
 
 - **PropertiesModule**
-  - Draft creation and update logic
+  - Full CRUD for properties
   - Core business entity
 - **BuildingsModule**
   - Buildings belonging to a property
-  - Ordered within a property
-- **UnitsModule**
-  - Units belonging to buildings
-  - Physical and legal attributes
+  - Ordered within a property via `order_index`
+- **OwnersModule**
+  - Owner creation and listing
+  - Assign owners to units with ownership share
+  - Top owners by area and unit statistics
 - **UsersModule**
   - Basic user management
   - Password hashing
