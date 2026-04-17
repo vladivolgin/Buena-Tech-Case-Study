@@ -1,15 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Property, ManagementType, PropertyStatus } from './property.entity';
+import { Property, ManagementType } from './property.entity';
 import { PropertyListItemResponseDto } from './dto/property-list-item.response.dto';
 import { CreatePropertyDto } from './dto/create-property.dto';
-
-interface UpdatePropertyDto {
-  managerName?: string;
-  accountantName?: string;
-}
-
 
 @Injectable()
 export class PropertiesService {
@@ -20,9 +14,9 @@ export class PropertiesService {
 
   create(dto: CreatePropertyDto): Promise<Property> {
     const property = this.propertyRepository.create({
+      uniqueNumber: dto.uniqueNumber,
       name: dto.name,
       managementType: dto.managementType ?? ManagementType.WEG,
-      status: PropertyStatus.DRAFT,
     });
 
     return this.propertyRepository.save(property);
@@ -30,20 +24,12 @@ export class PropertiesService {
 
   async findAll(): Promise<PropertyListItemResponseDto[]> {
     const properties = await this.propertyRepository.find();
-  
-    console.log(
-      'SERVICE DEBUG:',
-      properties.map(p => ({
-        id: p.id,
-        managerId: p.managerId,
-      }))
-    );
-  
+
     return properties.map((property) => ({
       id: property.id,
+      uniqueNumber: property.uniqueNumber,
       name: property.name,
       managementType: property.managementType,
-      status: property.status,
       managerName: property.managerId,
       accountantName: property.accountantId,
     }));
@@ -60,7 +46,6 @@ export class PropertiesService {
   }
 
   async update(id: string, data: Partial<Property>): Promise<Property> {
-    console.log('PATCH service called', data);
     const property = await this.findOne(id);
     Object.assign(property, data);
     return this.propertyRepository.save(property);
@@ -72,7 +57,4 @@ export class PropertiesService {
       throw new NotFoundException('Property not found');
     }
   }
-  
-  
-  
 }

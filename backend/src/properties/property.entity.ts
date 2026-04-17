@@ -1,26 +1,25 @@
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-  } from 'typeorm';
-  
-  export enum ManagementType {
-    WEG = 'WEG',
-    MV = 'MV',
-  }
-  
-  export enum PropertyStatus {
-    DRAFT = 'draft',
-    ACTIVE = 'active',
-    ARCHIVED = 'archived',
-  }
-  
-  @Entity({ name: 'properties' })
+  Entity,
+  PrimaryColumn,
+  Column,
+  CreateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+
+export enum ManagementType {
+  WEG = 'WEG',
+  MV = 'MV',
+}
+
+@Entity({ name: 'properties' })
 export class Property {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id!: string;
+
+  @Column({ name: 'unique_number', unique: true })
+  uniqueNumber!: string;
 
   @Column()
   name!: string;
@@ -32,13 +31,6 @@ export class Property {
   })
   managementType!: ManagementType;
 
-  @Column({
-    type: 'enum',
-    enum: PropertyStatus,
-    default: PropertyStatus.DRAFT,
-  })
-  status!: PropertyStatus;
-
   @Column({ name: 'manager_id', type: 'text', nullable: true })
   managerId!: string | null;
 
@@ -48,7 +40,17 @@ export class Property {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @Column({ name: 'updated_at', type: 'timestamp' })
   updatedAt!: Date;
+
+  @BeforeInsert()
+  beforeInsert() {
+    if (!this.id) this.id = uuidv4();
+    this.updatedAt = new Date();
+  }
+
+  @BeforeUpdate()
+  beforeUpdate() {
+    this.updatedAt = new Date();
+  }
 }
-  

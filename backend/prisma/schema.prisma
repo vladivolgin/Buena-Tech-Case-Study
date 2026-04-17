@@ -1,18 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
 }
-
 
 model User {
   id           String   @id @default(uuid())
@@ -24,34 +16,33 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-
   managedProperties   Property[] @relation("PropertyManager")
   accountedProperties Property[] @relation("PropertyAccountant")
 
   @@map("users")
 }
 
-
 model Property {
-  id                        String            @id @default(uuid())
-  uniqueNumber              String            @unique @map("unique_number") // Автогенерируемый номер
+  id                        String         @id @default(uuid())
+  uniqueNumber              String         @unique @map("unique_number")
   name                      String
-  managementType            ManagementType    @map("management_type") // WEG или MV
-  purpose                   String? // Назначение объекта
-  managerId                 String?           @map("manager_id")
-  accountantId              String?           @map("accountant_id")
-  teilungserklarungFilePath String?           @map("teilungserklarung_file_path") // Путь к документу
-  createdAt                 DateTime          @default(now()) @map("created_at")
-  updatedAt                 DateTime          @updatedAt @map("updated_at")
+  managementType            ManagementType @map("management_type")
+  purpose                   String?
+  managerId                 String?        @map("manager_id")
+  accountantId              String?        @map("accountant_id")
+  teilungserklarungFilePath String?        @map("teilungserklarung_file_path")
+  createdAt                 DateTime       @default(now()) @map("created_at")
+  updatedAt                 DateTime       @updatedAt @map("updated_at")
 
-  // Отношения
-  manager    User?       @relation("PropertyManager", fields: [managerId], references: [id])
-  accountant User?       @relation("PropertyAccountant", fields: [accountantId], references: [id])
+  manager    User?      @relation("PropertyManager", fields: [managerId], references: [id])
+  accountant User?      @relation("PropertyAccountant", fields: [accountantId], references: [id])
   buildings  Building[]
 
+  @@index([managerId])
+  @@index([accountantId])
+  @@index([managementType])
   @@map("properties")
 }
-
 
 model Building {
   id               String   @id @default(uuid())
@@ -61,40 +52,66 @@ model Building {
   postalCode       String?  @map("postal_code")
   city             String?
   constructionYear Int?     @map("construction_year")
-  orderIndex       Int      @default(0) @map("order_index") // Для сортировки зданий
+  orderIndex       Int      @default(0) @map("order_index")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
-  // Отношения
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   units    Unit[]
 
+  @@index([propertyId])
   @@map("buildings")
 }
 
 model Unit {
   id               Int       @id @default(autoincrement())
   buildingId       String    @map("building_id")
-  number           String // Номер единицы
-  type             UnitType? // Тип единицы
-  floor            Int? // Этаж
-  entrance         String? // Подъезд
-  sizeSqm          Decimal?  @map("size_sqm") @db.Decimal(8, 2) // Площадь в кв.м
-  coOwnershipShare Decimal   @map("co_ownership_share") @db.Decimal(8, 4) // Доля в совместной собственности
+  number           String
+  type             UnitType?
+  floor            Int?
+  entrance         String?
+  sizeSqm          Decimal?  @map("size_sqm") @db.Decimal(8, 2)
+  coOwnershipShare Decimal   @map("co_ownership_share") @db.Decimal(8, 4)
   constructionYear Int?      @map("construction_year")
-  rooms            Int? // Количество комнат
+  rooms            Int?
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  // Отношения
-  building Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  building Building    @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  owners   UnitOwner[]
 
-  // Ограничения
   @@unique([buildingId, number], name: "unique_unit_per_building")
+  @@index([buildingId])
+  @@index([type])
   @@map("units")
 }
 
-// Перечисления
+model Owner {
+  id        String    @id @default(uuid())
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  email     String    @unique
+  phone     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  units UnitOwner[]
+
+  @@map("owners")
+}
+
+model UnitOwner {
+  unitId  Int     @map("unit_id")
+  ownerId String  @map("owner_id")
+  share   Decimal @db.Decimal(5, 2)
+
+  unit  Unit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  owner Owner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@id([unitId, ownerId])
+  @@index([ownerId])
+  @@map("unit_owners")
+}
+
 enum UserRole {
   ADMIN
   MANAGER
@@ -102,14 +119,13 @@ enum UserRole {
 }
 
 enum ManagementType {
-  WEG // Wohnungseigentümergemeinschaft
-  MV  // Mietverwaltung
+  WEG
+  MV
 }
 
 enum UnitType {
-  APARTMENT // Квартира
-  OFFICE    // Офис
-  GARDEN    // Сад
-  PARKING   // Парковка
+  APARTMENT
+  OFFICE
+  GARDEN
+  PARKING
 }
-
