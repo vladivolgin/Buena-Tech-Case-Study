@@ -73,55 +73,92 @@ Join table between `units` and `owners`.
 
 ## 🗄 Database Overview (PostgreSQL)
 
-The database runs via **Docker** and is designed for a draft-based workflow.
+The database runs via **Docker** and is managed through **Prisma Migrations**.
 
 ### Properties Table
 ```sql
 properties
 - id (uuid, PK)
-- unique_number (unique)
-- name
-- management_type (enum: WEG | MV)
-- purpose
-- manager_id
-- accountant_id
-- manager_name
-- accountant_name
-- teilungserklaerung_file_path
-- status (draft | active)
-- created_at
-- updated_at
+- unique_number (text, UNIQUE)
+- name (text)
+- management_type (enum: WEG | MV)  ← indexed
+- purpose (text, nullable)
+- manager_id (uuid, FK → users.id)  ← indexed
+- accountant_id (uuid, FK → users.id) ← indexed
+- teilungserklarung_file_path (text, nullable)
+- created_at (timestamp)
+- updated_at (timestamp)
 ```
+
 ### BuildingsTable
 ```sql
 buildings
 - id (uuid, PK)
-- property_id (FK → properties.id)
-- street
-- house_number
-- postal_code
-- city
-- construction_year
-- order_index
-- created_at
-- updated_at
+- property_id (uuid, FK → properties.id) ← indexed, cascade delete
+- street (text)
+- house_number (text)
+- postal_code (text, nullable)
+- city (text, nullable)
+- construction_year (int, nullable)
+- order_index (int, default 0)
+- created_at (timestamp)
+- updated_at (timestamp)
 ```
-Units Table
+### Units Table
 ```sql
 units
-- id (PK)
-- building_id (FK → buildings.id)
-- number
-- type (enum: Apartment | Office | Garden | Parking)
-- floor
-- entrance
-- size_sqm
-- co_ownership_share
-- construction_year
-- rooms
-- created_at
-- updated_at
+- id (int, PK, autoincrement)
+- building_id (uuid, FK → buildings.id) ← indexed, cascade delete
+- number (text)
+- type (enum: APARTMENT | OFFICE | GARDEN | PARKING) ← indexed
+- floor (int, nullable)
+- entrance (text, nullable)
+- size_sqm (decimal 8.2, nullable)
+- co_ownership_share (decimal 8.4)
+- construction_year (int, nullable)
+- rooms (int, nullable)
+- created_at (timestamp)
+- updated_at (timestamp)
+- UNIQUE(building_id, number)
 ```
+### Owners Table
+```sql
+owners
+- id (uuid, PK)
+- first_name (text)
+- last_name (text)
+- email (text, UNIQUE)
+- phone (text, nullable)
+- created_at (timestamp)
+```
+### UnitOwners Table (many-to-many)
+```sql
+unit_owners
+- unit_id (int, FK → units.id)   ← composite PK, cascade delete
+- owner_id (uuid, FK → owners.id) ← composite PK, indexed, cascade delete
+- share (decimal 5.2)
+```
+### Users Table
+```sql
+users
+- id (uuid, PK)
+- email (text, UNIQUE)
+- password_hash (text)
+- role (enum: ADMIN | MANAGER | ACCOUNTANT)
+- first_name (text, nullable)
+- last_name (text, nullable)
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+### Performance Indexes
+Index	Table	Purpose
+properties_manager_id_idx	properties	Filter/JOIN by manager
+properties_accountant_id_idx	properties	Filter/JOIN by accountant
+properties_management_type_idx	properties	Filter by WEG/MV
+buildings_property_id_idx	buildings	JOIN buildings → properties
+units_building_id_idx	units	JOIN units → buildings
+units_type_idx	units	Filter by unit type
+unit_owners_owner_id_idx	unit_owners	JOIN unit_owners → owners
 
 ## 🔑 Key Characteristics
 
