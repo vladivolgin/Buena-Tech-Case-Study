@@ -28,6 +28,29 @@ The primary goals of this project are:
 
 ---
 
+
+## ✅ Use Cases
+
+| # | Use Case | Status |
+|---|----------|--------|
+| 1 | List all properties | ✅ Implemented |
+| 2 | View a single property by ID | ✅ Implemented |
+| 3 | Create a new property | ✅ Implemented |
+| 4 | Update a property | ✅ Implemented |
+| 5 | Delete a property | ✅ Implemented |
+| 6 | List all buildings for a property | ✅ Implemented |
+| 7 | Add a building to a property | ✅ Implemented |
+| 8 | List all owners with their units | ✅ Implemented |
+| 9 | Create a new owner | ✅ Implemented |
+| 10 | Assign an owner to a unit with a share | ✅ Implemented |
+| 11 | View units for a specific unit | ✅ Implemented |
+| 12 | View top owners by total area | ✅ Implemented |
+| 13 | View unit area statistics | ✅ Implemented |
+| 14 | API health check | ✅ Implemented |
+| 15 | Unit CRUD (full) | ⏳ Not yet implemented |
+| 16 | User authentication (JWT) | ⏳ Not yet implemented |
+
+
 ## 🧱 Domain Model
 Property
 ├─ Buildings (1..n)
@@ -402,8 +425,6 @@ POST   /api/owners/units/:unitId/assign
 GET    /api/owners/units/:unitId
 ```
 
-Currently the backend exposes endpoints for listing and creating properties, which is enough to power the Property Dashboard and start the creation wizard.
-The remaining endpoints for buildings and units follow the same REST structure and can be added incrementally
 
 
 ## ▶️ Local Development Setup
