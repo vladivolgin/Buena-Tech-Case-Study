@@ -91,7 +91,81 @@ Join table between `units` and `owners`.
 - Composite primary key: `(unit_id, owner_id)`
 - Stores the ownership share per unit per owner
 
+```mermaid
+erDiagram
+    users {
+        uuid id PK
+        string email UK
+        string password_hash
+        enum role
+        string first_name
+        string last_name
+        datetime created_at
+        datetime updated_at
+    }
 
+    properties {
+        uuid id PK
+        string unique_number UK
+        string name
+        enum management_type
+        string purpose
+        uuid manager_id FK
+        uuid accountant_id FK
+        datetime created_at
+        datetime updated_at
+    }
+
+    buildings {
+        uuid id PK
+        uuid property_id FK
+        string street
+        string house_number
+        string postal_code
+        string city
+        int construction_year
+        int order_index
+        datetime created_at
+        datetime updated_at
+    }
+
+    units {
+        int id PK
+        uuid building_id FK
+        string number
+        enum type
+        int floor
+        string entrance
+        decimal size_sqm
+        decimal co_ownership_share
+        int construction_year
+        int rooms
+        datetime created_at
+        datetime updated_at
+    }
+
+    owners {
+        uuid id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        datetime created_at
+    }
+
+    unit_owners {
+        int unit_id FK
+        uuid owner_id FK
+        decimal share
+    }
+
+    users ||--o{ properties : "manages"
+    users ||--o{ properties : "accounts for"
+    properties ||--o{ buildings : "has"
+    buildings ||--o{ units : "contains"
+    units ||--o{ unit_owners : "owned via"
+    owners ||--o{ unit_owners : "owns via"
+```
 ---
 
 ## 🗄 Database Overview (PostgreSQL)
