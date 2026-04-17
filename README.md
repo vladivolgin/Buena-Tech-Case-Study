@@ -32,30 +32,42 @@ The primary goals of this project are:
 Property
 ├─ Buildings (1..n)
 │   └─ Units (0..n)
+│       └─ UnitOwners (0..n)  ← many-to-many join table
+│           └─ Owners
 
 ### Property
 Represents a managed real estate object.
 
-- Can exist in `draft` or `active` state
 - Has a management type (`WEG` or `MV`)
-- Stores business-level fields:
-  - name
-  - manager
-  - accountant
-  - purpose
+- Assigned to a manager and an accountant (both reference `users`)
+- Stores business-level fields: name, purpose, unique number
 
 ### Building
 Represents a physical building belonging to a property.
 
-- Address-based entity
-- Ordered within a property
+- Address-based entity (street, house number, city, postal code)
+- Ordered within a property via `order_index`
 - Acts as a parent for units
 
 ### Unit
-Represents an individual unit (apartment, office, parking, etc.).
+Represents an individual unit (apartment, office, parking, garden, etc.).
 
 - Belongs to exactly one building
-- Has physical and legal attributes (size, rooms, co-ownership share)
+- Has physical and legal attributes (size, floor, rooms, co-ownership share)
+- Can be co-owned by multiple owners via `unit_owners`
+
+### Owner
+Represents a real person who owns one or more units.
+
+- Linked to units via the `unit_owners` join table
+- Each ownership record stores a `share` percentage
+
+### UnitOwner (many-to-many)
+Join table between `units` and `owners`.
+
+- Composite primary key: `(unit_id, owner_id)`
+- Stores the ownership share per unit per owner
+
 
 ---
 
