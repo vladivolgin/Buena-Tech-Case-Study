@@ -162,6 +162,21 @@ users
 | `units_type_idx` | units | Filter by unit type |
 | `unit_owners_owner_id_idx` | unit_owners | JOIN unit_owners → owners |
 
+### Data
+
+The database is seeded with realistic demo data via `seed.sql`:
+
+| Table | Records |
+|-------|---------|
+| users | 4 |
+| properties | 3 |
+| buildings | 5 |
+| units | 13 |
+| owners | 8 |
+| unit_owners | 10 |
+
+Data was manually crafted to represent realistic German property management scenarios including co-owned units, mixed unit types, and multiple buildings per property.
+
 ## 🔑 Key Characteristics
 
 This project is built around a set of deliberate architectural and UX decisions aimed at creating a stable and predictable system.
