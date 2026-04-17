@@ -151,14 +151,16 @@ users
 - updated_at (timestamp)
 ```
 ### Performance Indexes
-Index	Table	Purpose
-properties_manager_id_idx	properties	Filter/JOIN by manager
-properties_accountant_id_idx	properties	Filter/JOIN by accountant
-properties_management_type_idx	properties	Filter by WEG/MV
-buildings_property_id_idx	buildings	JOIN buildings → properties
-units_building_id_idx	units	JOIN units → buildings
-units_type_idx	units	Filter by unit type
-unit_owners_owner_id_idx	unit_owners	JOIN unit_owners → owners
+
+| Index | Table | Purpose |
+|-------|-------|---------|
+| `properties_manager_id_idx` | properties | Filter/JOIN by manager |
+| `properties_accountant_id_idx` | properties | Filter/JOIN by accountant |
+| `properties_management_type_idx` | properties | Filter by WEG/MV |
+| `buildings_property_id_idx` | buildings | JOIN buildings → properties |
+| `units_building_id_idx` | units | JOIN units → buildings |
+| `units_type_idx` | units | Filter by unit type |
+| `unit_owners_owner_id_idx` | unit_owners | JOIN unit_owners → owners |
 
 ## 🔑 Key Characteristics
 
