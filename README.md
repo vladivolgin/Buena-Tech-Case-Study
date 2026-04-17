@@ -379,10 +379,27 @@ The frontend is intentionally kept **simple, predictable, and stable**.
 
 The backend exposes a simple REST API:
 ```text
-GET    /properties
-POST   /properties
-GET    /properties/:id
-PATCH  /properties/:id
+# Health
+GET    /api/health
+
+# Properties
+GET    /api/properties
+POST   /api/properties
+GET    /api/properties/:id
+PATCH  /api/properties/:id
+DELETE /api/properties/:id
+
+# Buildings
+GET    /api/properties/:propertyId/buildings
+POST   /api/properties/:propertyId/buildings
+
+# Owners
+GET    /api/owners
+POST   /api/owners
+GET    /api/owners/top
+GET    /api/owners/stats/area
+POST   /api/owners/units/:unitId/assign
+GET    /api/owners/units/:unitId
 ```
 
 Currently the backend exposes endpoints for listing and creating properties, which is enough to power the Property Dashboard and start the creation wizard.
